@@ -25,6 +25,10 @@ import pandas as pd
 import tensorflow as tf
 import fr_utils
 from Triplet_loss import Triplet_loss
+from Create_database_128 import Create_database_128
+from verify import Verify
+from Recognition import Recognition
+from User_page import User_page
 
 np.set_printoptions(threshold=np.nan)
 K.set_image_data_format('channels_first')
@@ -35,21 +39,28 @@ myFRmodel.createmdl_img(input_shape=(3, 96, 96))#return myFRmodel.FRmodel
 # test Triplet_loss
 # it does not need to model from inception model for face images
 myloss=Triplet_loss()
-print("Strat TF Triplet_loss_________________")
-with tf.Session()as sess_test:
-    tf.set_random_seed(1)
 
-    y_true = (None, None, None)
-    y_pred = (tf.random_normal([3, 128], mean=6, stddev=0.1, seed=1),
-              tf.random_normal([3, 128], mean=1, stddev=1, seed=1),
-              tf.random_normal([3, 128], mean=3, stddev=4, seed=1))
-    myloss.triplet_loss(y_true, y_pred, alpha=0.2)
-    print("*******" + str(myloss.loss))
-    print(myloss.loss)
-
-##########################################
 # Loading the pre-trained model
 mypre_trained_model =Load_Pre_traind_model()
 #mypre_trained_model.compile_model(myFRmodel.FRmodel,optimizer= 'adam',loss=myloss.triplet_loss, metrics = ['accuracy'])
 mypre_trained_model.compile_model(myFRmodel.FRmodel, 'adam', myloss.triplet_loss,['accuracy'])
 
+
+#to build the database. This database maps each person's name to a 128-dimensional encoding of their face.
+mydatabase=Create_database_128()
+mydatabase.create_data_128(myFRmodel.FRmodel)
+
+#############
+myuser=User_page()
+myuser.user_page
+####################
+
+#applying the model for face verification
+myverification=Verify()
+myverification.verify("images/camera_0.jpg", "younes", mydatabase.database, myFRmodel.FRmodel)
+print(myverification)
+
+#applying the model for face recognition
+myrecognition=Recognition()
+myrecognition.recognition(myuser.img_path, mydatabase.database, myFRmodel.FRmodel)
+print(myrecognition)

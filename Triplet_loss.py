@@ -20,15 +20,17 @@ class Triplet_loss():
         anchor, positive, negative = y_pred[0], y_pred[1], y_pred[2]
         # Step 1: Compute the (encoding) distance between the anchor and the positive
         pos_dist = tf.reduce_sum(tf.square(tf.subtract(anchor, positive)), axis=-1)
-        print("pos_dist.shape", pos_dist.shape)
+        #print("pos_dist.shape", pos_dist.shape)
         # Step 2: Compute the (encoding) distance between the anchor and the negative
         neg_dist = tf.reduce_sum(tf.square(tf.subtract(anchor, negative)), axis=-1)
-        print("neg_dist.shape", neg_dist.shape)
+        #print("neg_dist.shape", neg_dist.shape)
         # Step 3: subtract the two previous distances and add alpha.
         basic_loss = tf.add(tf.subtract(pos_dist, neg_dist), alpha)
-        print("basic_loss.shape", basic_loss.shape)
+        #print("basic_loss.shape", basic_loss.shape)
         # Step 4: Take the maximum of basic_loss and 0.0. Sum over the training examples.
         self.loss = tf.reduce_sum(tf.maximum(basic_loss, 0.0))
-        print("loss.shape", self.loss.shape)
-        print("--loss is ---",self.loss)
+        #print("loss.shape", self.loss.shape)
+        #print("--loss is ---",self.loss)
         return self.loss
+    def __repr__(self):
+        return f'{self.loss}'
